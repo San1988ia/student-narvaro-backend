@@ -3,8 +3,7 @@ import * as svc from "../services/attendanceService.js";
 
 const router = express.Router();
 
-//POST /api/attendance/mark
-//Markera närvaro
+//POST (Lägg till eller uppdatera närvaro)
 router.post("/mark", async (req, res) => {
   try {
     const { registrationId, date, status, comment } = req.body;
@@ -20,8 +19,7 @@ router.post("/mark", async (req, res) => {
   }
 });
 
-//GET /api/attendance/student/:id
-//Hämta närvaro för student
+//GET (Hämta närvaro för student)
 router.get("/student/:id", async (req, res) => {
   try {
     const data = await svc.byStudent(req.params.id);
@@ -31,8 +29,7 @@ router.get("/student/:id", async (req, res) => {
   }
 });
 
-//GET /api/attendance/cource/:id
-//Hämta närvaro för kurs
+//GET (Hämta närvaro för kurs)
 router.get("/course/:id", async (req, res) => {
   try {
     const data = await svc.byCourse(req.params.id);

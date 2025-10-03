@@ -1,7 +1,7 @@
-//Service lager för närvaro
+//Mellanlager för närvaro (kopplar routes till databasen)
 import * as data from "../data/attendanceData.js";
 
-//Markera närvaro (insert/update)
+//Sätt eller uppdatera närvaro
 export const mark = (p) => data.upsertMark(p);
 
 //Hämta närvaro för en student

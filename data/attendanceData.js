@@ -1,9 +1,9 @@
 ﻿import { connection } from "./db.js";
 
-//Upsert av närvaro:
-//-Försök först uppdatera en existerande rad (unik per registrering_id + datum)
-//-Om ingen rad uppdateras (affectedRows === 0)-->skapa ny rad
-//Säker: använder prepared statements (frågetecken + values-array)--> skydd mot SQL-injektion.
+//Spara eller uppdatera närvaro
+//- Kollar först om raden redan finns (samma registrering + datum)
+//- om den finns -> uppdatera
+//- om den inte finns -> skapa ny
 export async function upsertMark({
   registrationId,
   date,
@@ -12,7 +12,7 @@ export async function upsertMark({
 }) {
   const regId = Number(registrationId);
 
-  //Update om posten redan finns för samma registrering + datum
+  //Försök uppdatera befintlig rad
   const [upd] = await connection.execute(
     `UPDATE Narvaro
     SET status = ?, kommentar = ?, datum = ?
@@ -20,7 +20,7 @@ export async function upsertMark({
     [status, comment, date, regId, date]
   );
 
-  //Om ingen rad uppdateras --> INSERT (skapa ny post)
+  //Fanns den inte så skapa ny
   if (upd.affectedRows === 0) {
     await connection.execute(
       `INSERT INTO Narvaro (datum, status, kommentar, registrering_id)
@@ -29,23 +29,24 @@ export async function upsertMark({
     );
   }
 
-  //Returvärde i ett konsekvent objekt-format som API:et kan svara med
+  //Svar tillbaka i ett enkelt objekt
   return { registrationId: regId, date, status, comment };
 }
 
-//Lista närvaro för en given student, hämtar även kursinfo via JOINs för att göra svaret användbart i frontend/test.
+//Hämta alla närvarorader för en student
+// (inkluderar kursens namn och datum)
 export async function listByStudent(studentId) {
   const id = Number(studentId);
   const [rows] = await connection.execute(
     `SELECT n.id  AS attendanceId,
-      n.datum  AS date,
+      DATE_FORMAT(n.datum, '%Y-%m-%d') AS date,
       n.status  AS status,
       n.kommentar  AS comment,
       r.id  AS registrationId,
       k.id  AS courseId,
       k.kursnamn  AS courseName,
-      k.startdatum  AS courseStart,
-      k.slutdatum  AS courseEnd
+      DATE_FORMAT(k.startdatum, '%Y-%m-%d') AS courseStart,
+      DATE_FORMAT(k.slutdatum, '%Y-%m-%d') AS courseEnd
       FROM Narvaro n
       JOIN Registrering r ON r.id = n.registrering_id
       JOIN Kurs k ON k.id = r.kurs_id
@@ -56,16 +57,17 @@ export async function listByStudent(studentId) {
   return rows;
 }
 
-//Lista närvaro för given kurs, hämtar även studentens namn via JOIN så att listan är läsbar.
+//Hämta alla närvarorader för en kurs
+// (inkluderar studentens namn)
 export async function listByCourse(courseId) {
   const id = Number(courseId);
   const [rows] = await connection.execute(
-    `SELECT n id  AS attendanceId,
-      n.datum  AS date,
+    `SELECT n.id  AS attendanceId,
+      DATE_FORMAT(n.datum, '%Y-%m-%d') AS date,
       n.status  AS status,
       n.kommentar  AS comment,
       r.id  AS registrationId,
-      s.id  AS stdentId,
+      s.id  AS studentId,
       s.fornamn  AS firstName,
       s.efternamn AS lastName
       FROM Narvaro n
@@ -78,7 +80,9 @@ export async function listByCourse(courseId) {
   return rows;
 }
 
-//Meta: totalsiffror för att uppfylla "meta-data"kraven. Returnerar antal studenter, kurser, registreringar och närvarorader.
+//----META-funktioner------
+
+//Räkna antal studenter, kurser, registreringar och närvarorader
 export async function countsMeta() {
   const [[{ students }]] = await connection.query(
     "SELECT COUNT(*) AS students FROM Student"
@@ -95,11 +99,12 @@ export async function countsMeta() {
   return { students, courses, registrations, attendance };
 }
 
-//Meta närvaroprocent för en kurs. Total: antat närvarorader för en kursen oavsett status
-//Present: antal rader där status = 'narvaro'.
-//Rate: presnet total (0 om total = 0)
-export async function courseAttendanceRate(courceId) {
-  const id = Number(courceId);
+//Närvaroprocent för en kurs.
+// Total= alla rader i Narvaro för kursen
+//Present= rader där status = 'narvaro'.
+//Rate: present total (0 om total = 0)
+export async function courseAttendanceRate(courseId) {
+  const id = Number(courseId);
 
   const [[{ total }]] = await connection.query(
     `SELECT COUNT(*) AS total
@@ -116,5 +121,5 @@ export async function courseAttendanceRate(courceId) {
       WHERE r.kurs_id = ? AND n.status = 'narvaro'`,
     [id]
   );
-  return { courceId: id, present, total, rate: total ? present / total : 0 };
+  return { courseId: id, present, total, rate: total ? present / total : 0 };
 }

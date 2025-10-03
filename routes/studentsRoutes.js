@@ -3,7 +3,7 @@ import * as svc from "../services/studentsService.js";
 
 const router = express.Router();
 
-//GET alla studenter (med query parametrar)
+//GEY alla studenter (kan filtrera med query)
 router.get("/", async (req, res) => {
   try {
     const students = await svc.getAll(req.query);
@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//POST ny student (skapa en ny student)
+//POST ny student (Lägg till en ny student)
 router.post("/", async (req, res) => {
   try {
     const created = await svc.create(req.body);

@@ -1,11 +1,11 @@
-﻿//Service lager för studenter
+﻿//Mellanlager för studenter (kopplar routes till databasen)
 import * as data from "../data/studentsData.js";
 
-//Hämta alla studenter (med query parametrar)
+//Hämta alla studenter (kan filtrera med query)
 export const getAll = (opts) => data.findAll(opts);
 
-//Hämta en student med id
+//Hämta en student via id
 export const getById = (id) => data.findById(id);
 
-//Skapa en ny student
+//Lägg till en ny student
 export const create = (payload) => data.create(payload);

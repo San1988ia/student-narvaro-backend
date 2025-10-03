@@ -3,8 +3,7 @@ import * as svc from "../services/attendanceService.js";
 
 const router = express.Router();
 
-//GET /api/meta/counts
-//Hämta metadata(antal studenter, kurser, registreringar,närvarorader)
+//GET (Hämta antal studenter, kurser, registreringar, närvarorader)
 router.get("/counts", async (_req, res) => {
   try {
     const result = await svc.counts();
@@ -14,8 +13,7 @@ router.get("/counts", async (_req, res) => {
   }
 });
 
-// GET /api/meta/attendance-rate/course/:courseId
-//Hämta närvaroprocent för kurs
+// GET (Hämta närvaroprocent för kurs)
 router.get("/attendance-rate/course/:courseId", async (req, res) => {
   try {
     const result = await svc.rateForCourse(req.params.courseId);
