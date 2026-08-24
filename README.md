@@ -1,70 +1,182 @@
-# Student-närvaro Backend (Node + Express + MySQL)
+# Student Attendance Backend
 
-## Beskrivning 📖
+A REST API for managing student attendance, built with Node.js, Express and MySQL.
 
-Ett enkelt JSON-API för att hantera 'studenters närvaro'. Byggt med 'Node.js (ESM)', 'Express' och 'mysql2/promise'.
-API:et levererar endast 'JSON' och är strukturerat med 'routes --> services --> data' (separation of concerns).
+The project is structured with separate routes, services and data layers to keep the code organized and maintainable.
 
-## Tech-stack 🧰
+## Features
 
-- Node.js (ES Modules)
+- List all students
+- Get a student by ID
+- Create a new student
+- Register attendance
+- View attendance for a student
+- View attendance for a course
+- Get statistics about students, courses, registrations and attendance
+- Calculate attendance rate for a course
+
+## Tech Stack
+
+- Node.js
 - Express
-- MySQL (mysql2/promise)
-- Ingen ORM (SQL med prepared statements används för säkerhet)
+- MySQL
+- mysql2
+- dotenv
+- REST API
+- ES Modules
 
-## Mappstruktur 📁
+## Project Structure
 
-.
-├─ server.js # Startpunkt (Express-app + routers)
-├─ routes/ # API-routes (endpoints)
-├─ services/ # Mellanlager (business logic)
-├─ data/ # DB-anslutning + SQL-funktioner
-│ ├─ db.js
-│ ├─ studentsData.js
-│ └─ attendanceData.js
-└─ package.json
+```text
+student-narvaro-backend/
+├── data/
+│   ├── db.js
+│   ├── studentsData.js
+│   └── attendanceData.js
+├── routes/
+│   ├── studentsRoutes.js
+│   ├── attendanceRoutes.js
+│   └── metaRoutes.js
+├── services/
+│   ├── studentsService.js
+│   └── attendanceService.js
+├── .env.example
+├── .gitignore
+├── package.json
+└── server.js
+```
 
-- **routes/** -> tar emot requests och skickar svar (endpoints).
-- **services/** -> logik och koppling mellan routes och databasen.
-- **data/** -> SQL- frågor och databasanslutning.
+The application follows a simple separation of concerns:
 
-## Installation och körning 🔧
+- `routes/` handles API endpoints
+- `services/` contains application logic
+- `data/` handles database queries and the MySQL connection
 
-Klona projektet:
+## API Endpoints
 
-```powershell
+### Students
+
+```text
+GET /api/students
+```
+
+Returns all students.
+
+```text
+GET /api/students/:id
+```
+
+Returns a specific student.
+
+```text
+POST /api/students
+```
+
+Creates a new student.
+
+### Attendance
+
+```text
+POST /api/attendance/mark
+```
+
+Registers attendance.
+
+```text
+GET /api/attendance/student/:id
+```
+
+Returns attendance data for a student.
+
+```text
+GET /api/attendance/course/:id
+```
+
+Returns attendance data for a course.
+
+### Statistics
+
+```text
+GET /api/meta/counts
+```
+
+Returns statistics about students, courses, registrations and attendance.
+
+```text
+GET /api/meta/attendance-rate/course/:id
+```
+
+Returns the attendance percentage for a course.
+
+### Health Check
+
+```text
+GET /health
+```
+
+Checks that the API is running.
+
+## How to run
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/San1988ia/student-narvaro-backend.git
 cd student-narvaro-backend
-
-*Installera beroenden:
-npm install
-
-*Sätt miljövariabler(exempel för Windows PowerShell):
-setx DB_HOST "localhost"
-setx DB_PORT "3306"
-setx DB_USER "root"
-setx DB_PASSWORD "DITT_LÖSENORD_HÄR"
-setx DB_NAME "studentnarvaro"
-
-*Starta servern:
-npm start
-Nu körs servern på -> http://localhost:3000/health
-
-* API - Endpoints
-
-**Students**
-- `GET /api/students` -> Lista alla studenter
-- `GET /api/students/:id` -> Hämta en student
-- `POST /api/students` -> Skapa en ny student
-
-**Attendance**
-- `POST /api/attendance/mark` -> Markera närvaro
-- `GET /api/attendance/student/:id` -> Närvaro för student
-- `GET /api/attendance/course/:id` -> Närvaro för kurs
-
-**Meta**
-- `GET /api/meta/counts` -> Statistik (antal studenter, kurser, registreringar, närvaro)
-- `GET /api/meta/attendance-rate/course/:id` -> Närvaroprocent för kurs
-
-
 ```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file based on `.env.example`:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=studentnarvaro
+PORT=3000
+```
+
+Make sure the MySQL database exists before starting the server.
+
+### 4. Start the server
+
+```bash
+npm start
+```
+
+The API will run on:
+
+```text
+http://localhost:3000
+```
+
+You can test the health endpoint at:
+
+```text
+http://localhost:3000/health
+```
+
+## What I learned
+
+Through this project I gained more experience with:
+
+- Building REST APIs with Node.js and Express
+- Connecting a backend application to MySQL
+- Writing asynchronous database queries with `mysql2/promise`
+- Structuring backend code into routes, services and data layers
+- Working with environment variables
+- Handling JSON requests and responses
+- Designing API endpoints for student attendance data
+
+## Author
+
+**Sania Dehghani Ekengren**  
+Frontend Developer

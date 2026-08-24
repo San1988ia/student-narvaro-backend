@@ -1,8 +1,11 @@
+import dotenv from "dotenv";
 import express from "express";
 import { connection } from "./data/db.js";
 import attendanceRouter from "./routes/attendanceRoutes.js";
 import metaRouter from "./routes/metaRoutes.js";
 import studentsRouter from "./routes/studentsRoutes.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +15,7 @@ app.use(express.json());
 
 //Enkel testlänk för att se om servern är igång
 app.get("/health", (_req, res) =>
-  res.json({ message: "Wohoo, vi är igång och servern funkar" })
+  res.json({ message: "Wohoo, vi är igång och servern funkar" }),
 );
 
 //API-routes(studenter, närvaro, statistik)
